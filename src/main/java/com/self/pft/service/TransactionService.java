@@ -1,0 +1,63 @@
+package com.self.pft.service;
+
+import com.self.pft.entity.Transaction;
+import com.self.pft.entity.User;
+import com.self.pft.entity.request.TransactionRequest;
+import com.self.pft.entity.response.TransactionResponse;
+import com.self.pft.repository.TransactionRepository;
+import com.self.pft.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+public class TransactionService {
+
+    @Autowired
+    private TransactionRepository transactionRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    public ResponseEntity<Transaction> createTransaction(TransactionRequest request){
+        User user = userRepository.findById(request.getUserId()).orElseThrow(()->new EntityNotFoundException("User not found"));
+
+        Transaction transaction = new Transaction();
+        transaction.setUser(user);
+        transaction.setAmount(request.getAmount());
+        transaction.setDescription(request.getDescription());
+        transaction.setTransactionType(request.getTransactionType());
+        transaction.setTransactionDate(request.getTransactionDate());
+
+        Transaction saved = transactionRepository.save(transaction);
+        return new ResponseEntity<>(saved, HttpStatus.OK);
+    }
+
+    public ResponseEntity<List<TransactionResponse>> getUserTransactionsByUserId(Long userId){
+        List<Transaction> transactionList = transactionRepository.findByUserId(userId);
+        List<TransactionResponse> transactionResponseList=new ArrayList<>();
+        if (transactionList!=null){
+            for (Transaction transaction: transactionList){
+                TransactionResponse response=new TransactionResponse();
+
+                response.setId(transaction.getId());
+                response.setAmount(transaction.getAmount());
+                response.setDescription(transaction.getDescription());
+                response.setTransactionType(transaction.getTransactionType());
+                response.setTransactionDate(transaction.getTransactionDate());
+                response.setCreatedAt(transaction.getCreatedAt());
+                response.setUpdatedAt(transaction.getUpdatedAt());
+
+                transactionResponseList.add(response);
+            }
+            return new ResponseEntity<>(transactionResponseList, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+}
