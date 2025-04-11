@@ -4,6 +4,7 @@ import com.self.pft.entity.Transaction;
 import com.self.pft.entity.request.TransactionRequest;
 import com.self.pft.entity.response.TransactionResponse;
 import com.self.pft.service.TransactionService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class TransactionController {
     private TransactionService transactionService;
 
     @PostMapping
-    public ResponseEntity<Transaction> createTransaction(@RequestBody TransactionRequest request){
+    public ResponseEntity<Transaction> createTransaction(@Valid @RequestBody TransactionRequest request){
         ResponseEntity<Transaction> transaction = transactionService.createTransaction(request);
         if (transaction!=null){
             return transaction;
