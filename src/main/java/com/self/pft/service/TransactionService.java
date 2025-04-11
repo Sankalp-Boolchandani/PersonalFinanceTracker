@@ -4,6 +4,7 @@ import com.self.pft.entity.Transaction;
 import com.self.pft.entity.User;
 import com.self.pft.entity.request.TransactionRequest;
 import com.self.pft.entity.response.TransactionResponse;
+import com.self.pft.enums.TransactionType;
 import com.self.pft.repository.TransactionRepository;
 import com.self.pft.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,8 +40,14 @@ public class TransactionService {
         return new ResponseEntity<>(saved, HttpStatus.OK);
     }
 
-    public ResponseEntity<List<TransactionResponse>> getUserTransactionsByUserId(Long userId){
-        List<Transaction> transactionList = transactionRepository.findByUserId(userId);
+    public ResponseEntity<List<TransactionResponse>> getUserTransactionsByUserId(
+            Long userId, TransactionType transactionType, LocalDateTime startDate, LocalDateTime endDate){
+
+        userRepository.findById(userId).orElseThrow(()->new EntityNotFoundException("User not found"));
+
+//        List<Transaction> transactionList = transactionRepository.findByUserId(userId);               // task 4: searching with filters along with userId. (userId is a necessary param)
+
+        List<Transaction> transactionList = transactionRepository.findTransactionsByUserWithFilters(userId, transactionType, startDate, endDate);
         List<TransactionResponse> transactionResponseList=new ArrayList<>();
         if (transactionList!=null){
             for (Transaction transaction: transactionList){
