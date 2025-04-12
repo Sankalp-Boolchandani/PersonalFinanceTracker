@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 public class TransactionRequest {
-    @NotNull
+
     private Long userId;
     @Positive(message = "Should be greater than 0")
     @NotNull

@@ -79,4 +79,28 @@ public class TransactionService {
             return new ResponseEntity<>("Transaction not found with id: "+id, HttpStatus.NOT_FOUND);
         }
     }
+
+    public ResponseEntity<String> updateTransactionById(Long id, TransactionRequest transactionRequest){
+        try {
+            Transaction transaction = transactionRepository.findById(id).get();
+
+            if (transactionRequest.getTransactionType()!=null){
+                transaction.setTransactionType(transactionRequest.getTransactionType());
+            }
+            if (transactionRequest.getTransactionDate()!=null){
+                transaction.setTransactionDate(transactionRequest.getTransactionDate());
+            }
+            if (transactionRequest.getDescription()!=null){
+                transaction.setDescription(transactionRequest.getDescription());
+            }
+            if (transactionRequest.getAmount()!=null){
+                transaction.setAmount(transactionRequest.getAmount());
+            }
+
+            transactionRepository.save(transaction);
+            return new ResponseEntity<>("Transaction updated successfully", HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>("Transaction not found with id: "+id, HttpStatus.NOT_FOUND);
+        }
+    }
 }

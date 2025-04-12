@@ -47,4 +47,9 @@ public class TransactionController {
         return transactionService.deleteTransactionById(id);
     }
 
+    @PutMapping("{id}")
+    public ResponseEntity<String> updateTransaction(@PathVariable Long id, @RequestBody TransactionRequest transactionRequest){
+        return transactionService.updateTransactionById(id, transactionRequest);
+    }
+
 }
