@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/transactions")
@@ -39,6 +40,11 @@ public class TransactionController {
             @RequestParam(required = false) LocalDateTime endDate
             ){
         return transactionService.getUserTransactionsByUserId(userId, transactionType, startDate, endDate);
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<String> deleteTransactionById(@PathVariable Long id){
+        return transactionService.deleteTransactionById(id);
     }
 
 }

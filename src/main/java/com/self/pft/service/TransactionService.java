@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class TransactionService {
@@ -68,4 +69,14 @@ public class TransactionService {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+
+    public ResponseEntity<String> deleteTransactionById(Long id) {
+        try{
+            Transaction transaction = transactionRepository.findById(id).get();
+            transactionRepository.delete(transaction);
+            return new ResponseEntity<>("Transaction deleted successfully", HttpStatus.OK);
+        } catch (NoSuchElementException e){
+            return new ResponseEntity<>("Transaction not found with id: "+id, HttpStatus.NOT_FOUND);
+        }
+    }
 }
