@@ -11,8 +11,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -50,6 +52,11 @@ public class TransactionController {
     @PutMapping("{id}")
     public ResponseEntity<String> updateTransaction(@PathVariable Long id, @RequestBody TransactionRequest transactionRequest){
         return transactionService.updateTransactionById(id, transactionRequest);
+    }
+
+    @GetMapping("/user/{userId}/summary")
+    public ResponseEntity<Map<String, BigDecimal>> getTransactionsBySummary(@PathVariable Long userId){
+        return transactionService.getTransactionSummaryTotal(userId);
     }
 
 }

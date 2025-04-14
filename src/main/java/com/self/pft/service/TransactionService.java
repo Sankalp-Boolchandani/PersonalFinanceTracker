@@ -8,15 +8,15 @@ import com.self.pft.enums.TransactionType;
 import com.self.pft.repository.TransactionRepository;
 import com.self.pft.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.ManyToOne;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @Service
 public class TransactionService {
@@ -101,6 +101,22 @@ public class TransactionService {
             return new ResponseEntity<>("Transaction updated successfully", HttpStatus.OK);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>("Transaction not found with id: "+id, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    public ResponseEntity<Map<String, BigDecimal>> getTransactionSummaryTotal(Long userId) {
+        userRepository.findById(userId).orElseThrow(
+                ()->new NoSuchElementException("User with id: "+userId+" not found"));
+        List<Transaction> transactionList = transactionRepository.findByUserId(userId);
+        if (!transactionList.isEmpty()){
+            Map<String, BigDecimal> transactionMap=new HashMap<>();
+            for (Transaction transaction: transactionList){
+                transactionMap.put(transaction.getDescription(),
+                        transactionMap.getOrDefault(transaction.getDescription(), BigDecimal.ZERO).add(transaction.getAmount()));
+            }
+            return ResponseEntity.ok(transactionMap);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 }
