@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
@@ -109,11 +110,21 @@ public class TransactionService {
                 ()->new NoSuchElementException("User with id: "+userId+" not found"));
         List<Transaction> transactionList = transactionRepository.findByUserId(userId);
         if (!transactionList.isEmpty()){
-            Map<String, BigDecimal> transactionMap=new HashMap<>();
-            for (Transaction transaction: transactionList){
-                transactionMap.put(transaction.getDescription(),
-                        transactionMap.getOrDefault(transaction.getDescription(), BigDecimal.ZERO).add(transaction.getAmount()));
-            }
+
+//            // older code. not an appreciable practise now!!!!
+//            Map<String, BigDecimal> transactionMap=new HashMap<>();
+//            for (Transaction transaction: transactionList){
+//                transactionMap.put(transaction.getDescription(),
+//                        transactionMap.getOrDefault(transaction.getDescription(), BigDecimal.ZERO).add(transaction.getAmount()));
+//            }
+
+            // newer better code implementation of the above written for loop
+            Map<String, BigDecimal> transactionMap = transactionList.stream().collect(Collectors.groupingBy(
+                    Transaction::getDescription,                                                                            // collects and groups the same descriptions
+                    Collectors.mapping(Transaction::getAmount, Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))       // maps all the amount together and adds them!
+            ));
+
+
             return ResponseEntity.ok(transactionMap);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
