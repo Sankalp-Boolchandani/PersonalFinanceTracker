@@ -16,8 +16,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class TransactionService {
@@ -129,5 +131,24 @@ public class TransactionService {
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+    public ResponseEntity<Map<String, BigDecimal>> getUserMonthlySpends(Long userId) {
+        userRepository.findById(userId).orElseThrow(
+                ()->new NoSuchElementException("User with id: "+userId+" not found"));
+        List<Transaction> expense = transactionRepository.findByUserId(userId).stream()
+                .filter(x ->
+                x.getTransactionType().equals(TransactionType.EXPENSE)).toList();
+        if (!expense.isEmpty()){
+            Map<String, BigDecimal> transactionMap = expense.stream().collect(Collectors.groupingBy(tx ->
+                            // here we can't use Transaction like getTransactionSummaryTotal method and have to use tx
+                            // because Method references (like Transaction::getDescription) dont work when they are
+                            // wrapped inside another function, (YearMonth.from(...)) here!
+                            YearMonth.from(tx.getTransactionDate()).toString(),
+                    Collectors.mapping(Transaction::getAmount, Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))
+            ));
+            return ResponseEntity.ok(transactionMap);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }

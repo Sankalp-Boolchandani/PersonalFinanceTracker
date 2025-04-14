@@ -59,4 +59,9 @@ public class TransactionController {
         return transactionService.getTransactionSummaryTotal(userId);
     }
 
+    @GetMapping("user/{userId}/spends")
+    public ResponseEntity<Map<String, BigDecimal>> getUserMonthlySpends(@PathVariable Long userId){
+        return transactionService.getUserMonthlySpends(userId);
+    }
+
 }
