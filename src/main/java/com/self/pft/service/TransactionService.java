@@ -8,7 +8,6 @@ import com.self.pft.enums.TransactionType;
 import com.self.pft.repository.TransactionRepository;
 import com.self.pft.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.ManyToOne;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +18,6 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class TransactionService {
@@ -39,6 +37,7 @@ public class TransactionService {
         transaction.setDescription(request.getDescription());
         transaction.setTransactionType(request.getTransactionType());
         transaction.setTransactionDate(request.getTransactionDate());
+        transaction.setExpenseCategory(request.getExpenseCategory());
 
         Transaction saved = transactionRepository.save(transaction);
         return new ResponseEntity<>(saved, HttpStatus.OK);
@@ -99,6 +98,9 @@ public class TransactionService {
             if (transactionRequest.getAmount()!=null){
                 transaction.setAmount(transactionRequest.getAmount());
             }
+            if (transactionRequest.getExpenseCategory()!=null){
+                transaction.setExpenseCategory(transactionRequest.getExpenseCategory());
+            }
 
             transactionRepository.save(transaction);
             return new ResponseEntity<>("Transaction updated successfully", HttpStatus.OK);
@@ -140,11 +142,11 @@ public class TransactionService {
                 .filter(x ->
                 x.getTransactionType().equals(TransactionType.EXPENSE)).toList();
         if (!expense.isEmpty()){
-            Map<String, BigDecimal> transactionMap = expense.stream().collect(Collectors.groupingBy(tx ->
+            Map<String, BigDecimal> transactionMap = expense.stream().collect(Collectors.groupingBy(
                             // here we can't use Transaction like getTransactionSummaryTotal method and have to use tx
                             // because Method references (like Transaction::getDescription) dont work when they are
                             // wrapped inside another function, (YearMonth.from(...)) here!
-                            YearMonth.from(tx.getTransactionDate()).toString(),
+                    tx -> YearMonth.from(tx.getTransactionDate()).toString(),
                     Collectors.mapping(Transaction::getAmount, Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))
             ));
             return ResponseEntity.ok(transactionMap);
