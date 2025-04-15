@@ -3,6 +3,7 @@ package com.self.pft.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -19,6 +20,7 @@ public class User {
     private String name;
     @Column(unique = true, nullable = false)
     private String email;
+    private BigDecimal budgetLimit;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

@@ -3,11 +3,14 @@ package com.self.pft.controller;
 
 import com.self.pft.entity.User;
 import com.self.pft.service.UserService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -40,6 +43,14 @@ public class UserController {
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+    @PostMapping("/{id}")
+    public ResponseEntity<User> setUserBudget(@Valid
+            @PathVariable Long id,
+            @RequestParam @Positive BigDecimal budget)
+            {
+        return userService.setUserBudget(id, budget);
     }
 
 }
