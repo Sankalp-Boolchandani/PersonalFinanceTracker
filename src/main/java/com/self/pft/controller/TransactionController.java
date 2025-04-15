@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
 
@@ -72,6 +73,11 @@ public class TransactionController {
     @GetMapping("user/{userId}/highest-by-category")
     public ResponseEntity<Map<String, BigDecimal>> getHighestTransactionsByCategory(@PathVariable Long userId){
         return transactionService.getHighestTransactionsByCategory(userId);
+    }
+
+    @GetMapping("user/{userId}/monthly-highest-by-category")
+    public ResponseEntity<Map<YearMonth, Map<String, BigDecimal>>> getMonthlyHighestTransactionsByCategory(@PathVariable Long userId){
+        return transactionService.getMonthlyHighestTransactionsByCategory(userId);
     }
 
 }

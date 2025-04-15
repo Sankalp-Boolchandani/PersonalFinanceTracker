@@ -211,4 +211,21 @@ public class TransactionService {
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+
+    public ResponseEntity<Map<YearMonth, Map<String, BigDecimal>>> getMonthlyHighestTransactionsByCategory(Long userId) {
+        userRepository.findById(userId).orElseThrow(
+                ()->new NoSuchElementException("User with id: "+userId+" not found"));
+        List<Transaction> transactionList = transactionRepository.findByUserId(userId);
+        Map<YearMonth, Map<String, BigDecimal>> resultMap = transactionList.stream().collect(Collectors.groupingBy(tx ->
+                        YearMonth.from(tx.getTransactionDate()),
+                Collectors.groupingBy(x ->
+                                String.valueOf(x.getExpenseCategory()),
+                        Collectors.mapping(Transaction::getAmount, Collectors.reducing(BigDecimal.ZERO, BigDecimal::max))
+                )
+        ));
+        if (!resultMap.isEmpty()){
+            return ResponseEntity.ok(resultMap);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 }
