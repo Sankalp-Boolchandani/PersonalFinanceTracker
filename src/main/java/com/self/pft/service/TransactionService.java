@@ -4,7 +4,6 @@ import com.self.pft.entity.Transaction;
 import com.self.pft.entity.User;
 import com.self.pft.entity.request.TransactionRequest;
 import com.self.pft.entity.response.TransactionResponse;
-import com.self.pft.enums.ExpenseCategory;
 import com.self.pft.enums.TransactionType;
 import com.self.pft.repository.TransactionRepository;
 import com.self.pft.repository.UserRepository;
