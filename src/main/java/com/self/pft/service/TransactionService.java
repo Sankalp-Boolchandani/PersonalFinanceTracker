@@ -4,11 +4,11 @@ import com.self.pft.entity.Transaction;
 import com.self.pft.entity.User;
 import com.self.pft.entity.request.TransactionRequest;
 import com.self.pft.entity.response.TransactionResponse;
-import com.self.pft.enums.ExpenseCategory;
 import com.self.pft.enums.TransactionType;
 import com.self.pft.repository.TransactionRepository;
 import com.self.pft.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class TransactionService {
 
     @Autowired
@@ -41,7 +42,29 @@ public class TransactionService {
         transaction.setExpenseCategory(request.getExpenseCategory());
 
         Transaction saved = transactionRepository.save(transaction);
+        checkIfBudgetEceeded(user);
         return new ResponseEntity<>(saved, HttpStatus.OK);
+    }
+
+    private void checkIfBudgetEceeded(User user) {
+        if (user!=null){
+            List<Transaction> transactionList = transactionRepository.findByUserId(user.getId());
+
+//            // approach that I used
+//            Map<TransactionType, BigDecimal> transactionsByType = transactionList.stream().collect(Collectors.groupingBy(
+//                    Transaction::getTransactionType,
+//                    Collectors.mapping(Transaction::getAmount, Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))
+//            ));
+//            BigDecimal expenses = transactionsByType.get(TransactionType.EXPENSE);
+
+//          // suggested approach
+            BigDecimal expenses=transactionList.stream().filter(x ->
+                            x.getTransactionType().equals(TransactionType.EXPENSE))
+                    .map(Transaction::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+            if (expenses!=null && user.getBudgetLimit()!=null && expenses.compareTo(user.getBudgetLimit()) > 0){
+                log.warn("Budget exceeded! User "+user.getId()+" spent ₹"+expenses+" out of ₹"+user.getBudgetLimit());
+            }
+        }
     }
 
     public ResponseEntity<List<TransactionResponse>> getUserTransactionsByUserId(
