@@ -1,5 +1,6 @@
 package com.self.pft.entity;
 
+import com.self.pft.enums.ExpenseCategory;
 import com.self.pft.enums.TransactionType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,6 +26,7 @@ public class Transaction {
     private BigDecimal amount;
     private String description;
     private TransactionType transactionType;
+    private ExpenseCategory expenseCategory;
     private LocalDateTime transactionDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

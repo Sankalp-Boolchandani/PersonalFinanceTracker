@@ -1,5 +1,6 @@
 package com.self.pft.entity.request;
 
+import com.self.pft.enums.ExpenseCategory;
 import com.self.pft.enums.TransactionType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -26,4 +27,6 @@ public class TransactionRequest {
     private TransactionType transactionType;
     @NotNull(message = "User must provide this date")
     private LocalDateTime transactionDate;
+    @NotNull(message = "Can't be empty")
+    private ExpenseCategory expenseCategory;
 }
