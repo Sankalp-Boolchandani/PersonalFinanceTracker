@@ -3,6 +3,7 @@ package com.self.pft.controller;
 import com.self.pft.entity.Transaction;
 import com.self.pft.entity.request.TransactionRequest;
 import com.self.pft.entity.response.TransactionResponse;
+import com.self.pft.enums.ExpenseCategory;
 import com.self.pft.enums.TransactionType;
 import com.self.pft.service.TransactionService;
 import jakarta.validation.Valid;
@@ -59,9 +60,14 @@ public class TransactionController {
         return transactionService.getTransactionSummaryTotal(userId);
     }
 
-    @GetMapping("user/{userId}/spends")
+    @GetMapping("user/{userId}/monthlySpends")
     public ResponseEntity<Map<String, BigDecimal>> getUserMonthlySpends(@PathVariable Long userId){
         return transactionService.getUserMonthlySpends(userId);
+    }
+
+    @GetMapping("user/{userId}/spendsByType")
+    public ResponseEntity<Map<String, BigDecimal>> getUserTotalSpendsByType(@PathVariable Long userId){
+        return transactionService.getUserTotalSpendsByType(userId);
     }
 
 }

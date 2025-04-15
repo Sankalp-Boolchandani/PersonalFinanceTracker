@@ -1,5 +1,6 @@
 package com.self.pft.entity.response;
 
+import com.self.pft.enums.ExpenseCategory;
 import com.self.pft.enums.TransactionType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,5 +21,6 @@ public class TransactionResponse {
     private LocalDateTime transactionDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private ExpenseCategory expenseCategory;
 
 }

@@ -4,6 +4,7 @@ import com.self.pft.entity.Transaction;
 import com.self.pft.entity.User;
 import com.self.pft.entity.request.TransactionRequest;
 import com.self.pft.entity.response.TransactionResponse;
+import com.self.pft.enums.ExpenseCategory;
 import com.self.pft.enums.TransactionType;
 import com.self.pft.repository.TransactionRepository;
 import com.self.pft.repository.UserRepository;
@@ -63,6 +64,7 @@ public class TransactionService {
                 response.setTransactionDate(transaction.getTransactionDate());
                 response.setCreatedAt(transaction.getCreatedAt());
                 response.setUpdatedAt(transaction.getUpdatedAt());
+                response.setExpenseCategory(transaction.getExpenseCategory());
 
                 transactionResponseList.add(response);
             }
@@ -151,6 +153,23 @@ public class TransactionService {
                     Collectors.mapping(Transaction::getAmount, Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))
             ));
             return ResponseEntity.ok(transactionMap);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    public ResponseEntity<Map<String, BigDecimal>> getUserTotalSpendsByType(Long userId) {
+        userRepository.findById(userId).orElseThrow(
+                ()->new NoSuchElementException("User with id: "+userId+" not found"));
+        List<Transaction> transactionList = transactionRepository.findByUserId(userId)
+                .stream().filter(x->x.getTransactionType().equals(TransactionType.EXPENSE)).toList();
+        if (!transactionList.isEmpty()){
+            Map<String, BigDecimal> result = transactionList.stream().collect(
+                    Collectors.groupingBy(tx ->
+                            String.valueOf(tx.getExpenseCategory()),
+                            Collectors.mapping(Transaction::getAmount, Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))
+                    )
+            );
+            return ResponseEntity.ok(result);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
