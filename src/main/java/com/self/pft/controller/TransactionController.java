@@ -16,7 +16,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/transactions")
@@ -68,6 +67,11 @@ public class TransactionController {
     @GetMapping("user/{userId}/spendsByType")
     public ResponseEntity<Map<String, BigDecimal>> getUserTotalSpendsByType(@PathVariable Long userId){
         return transactionService.getUserTotalSpendsByType(userId);
+    }
+
+    @GetMapping("user/{userId}/highest-by-category")
+    public ResponseEntity<Map<String, BigDecimal>> getHighestTransactionsByCategory(@PathVariable Long userId){
+        return transactionService.getHighestTransactionsByCategory(userId);
     }
 
 }
