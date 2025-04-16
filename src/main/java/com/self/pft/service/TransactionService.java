@@ -15,13 +15,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.temporal.WeekFields;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -240,7 +238,7 @@ public class TransactionService {
                         tx.getTransactionType().equals(TransactionType.EXPENSE)).toList();
         if (!transactionList.isEmpty()){
             Map<String, BigDecimal> result = transactionList.stream().collect(Collectors.groupingBy(tx ->
-                            getWeek(tx.getTransactionDate()),
+                            String.valueOf(tx.getTransactionDate().get(WeekFields.ISO.weekOfYear())),
                     Collectors.mapping(Transaction::getAmount, Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))
             ));
             if (!result.isEmpty()){
@@ -248,13 +246,5 @@ public class TransactionService {
             }
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
-
-    private String getWeek(LocalDateTime date){
-        WeekFields weekFields = WeekFields.of(Locale.getDefault());
-        int weekNumber = date.get(weekFields.weekOfWeekBasedYear());
-        int year = date.get(weekFields.weekBasedYear());
-        String weekKey = year + "-W" + weekNumber;
-        return weekKey;
     }
 }
