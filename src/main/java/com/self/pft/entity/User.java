@@ -18,6 +18,8 @@ public class User {
     private long id;
     @Column(nullable = false)
     private String name;
+    @Column(nullable = false)
+    private String password;
     @Column(unique = true, nullable = false)
     private String email;
     private BigDecimal budgetLimit;
