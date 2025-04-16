@@ -15,10 +15,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.time.temporal.WeekFields;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -227,5 +230,31 @@ public class TransactionService {
             return ResponseEntity.ok(resultMap);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    public ResponseEntity<Map<String, BigDecimal>> weeklyTransactions(Long userId){
+        userRepository.findById(userId).orElseThrow(
+                ()->new NoSuchElementException("User with id: "+userId+" not found"));
+        List<Transaction> transactionList = transactionRepository.findByUserId(userId).stream().
+                filter(tx ->
+                        tx.getTransactionType().equals(TransactionType.EXPENSE)).toList();
+        if (!transactionList.isEmpty()){
+            Map<String, BigDecimal> result = transactionList.stream().collect(Collectors.groupingBy(tx ->
+                            getWeek(tx.getTransactionDate()),
+                    Collectors.mapping(Transaction::getAmount, Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))
+            ));
+            if (!result.isEmpty()){
+                return ResponseEntity.ok(result);
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    private String getWeek(LocalDateTime date){
+        WeekFields weekFields = WeekFields.of(Locale.getDefault());
+        int weekNumber = date.get(weekFields.weekOfWeekBasedYear());
+        int year = date.get(weekFields.weekBasedYear());
+        String weekKey = year + "-W" + weekNumber;
+        return weekKey;
     }
 }

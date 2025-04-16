@@ -80,4 +80,9 @@ public class TransactionController {
         return transactionService.getMonthlyHighestTransactionsByCategory(userId);
     }
 
+    @GetMapping("user/{userId}/weekly-total")
+    public ResponseEntity<Map<String, BigDecimal>> getWeeklyTotal(@PathVariable Long userId){
+        return transactionService.weeklyTransactions(userId);
+    }
+
 }
