@@ -27,4 +27,13 @@ public class UserServiceTests {
         }
     }
 
+    @Test
+    void setUserRoles(){
+        List<User> allUsers = userService.getAllUsers();
+        for (User user: allUsers){
+            user.setRoles(List.of("USER"));
+            userService.saveUser(user);
+        }
+    }
+
 }

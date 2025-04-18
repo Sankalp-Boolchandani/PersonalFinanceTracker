@@ -10,6 +10,8 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -27,32 +29,36 @@ public class TransactionController {
 
     @PostMapping
     public ResponseEntity<Transaction> createTransaction(@Valid @RequestBody TransactionRequest request){
-        ResponseEntity<Transaction> transaction = transactionService.createTransaction(request);
-        if (transaction!=null){
-            return transaction;
-        } else {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getName().equals(request.getUsername())){
+            ResponseEntity<Transaction> transaction = transactionService.createTransaction(request);
+            if (transaction!=null){
+                return transaction;
+            }
         }
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @GetMapping("/user")
     public ResponseEntity<List<TransactionResponse>> getUserTransactionsByUserId(
-            @RequestParam Long userId,
             @RequestParam(required = false) TransactionType transactionType,
             @RequestParam(required = false) LocalDateTime startDate,
             @RequestParam(required = false) LocalDateTime endDate
             ){
-        return transactionService.getUserTransactionsByUserId(userId, transactionType, startDate, endDate);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return transactionService.getUserTransactionsByUserId(authentication.getName(), transactionType, startDate, endDate);
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity<String> deleteTransactionById(@PathVariable Long id){
-        return transactionService.deleteTransactionById(id);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return transactionService.deleteTransactionById(authentication.getName(), id);
     }
 
     @PutMapping("{id}")
     public ResponseEntity<String> updateTransaction(@PathVariable Long id, @RequestBody TransactionRequest transactionRequest){
-        return transactionService.updateTransactionById(id, transactionRequest);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return transactionService.updateTransactionById(authentication.getName(), id, transactionRequest);
     }
 
     @GetMapping("/user/{userId}/summary")

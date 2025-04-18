@@ -32,7 +32,10 @@ public class TransactionService {
     private UserRepository userRepository;
 
     public ResponseEntity<Transaction> createTransaction(TransactionRequest request){
-        User user = userRepository.findById(request.getUserId()).orElseThrow(()->new EntityNotFoundException("User not found"));
+        User user = userRepository.findByUsername(request.getUsername());
+        if (user==null){
+            throw new NoSuchElementException("User: "+request.getUsername()+" not found");
+        }
 
         Transaction transaction = new Transaction();
         transaction.setUser(user);
@@ -43,11 +46,11 @@ public class TransactionService {
         transaction.setExpenseCategory(request.getExpenseCategory());
 
         Transaction saved = transactionRepository.save(transaction);
-        checkIfBudgetEceeded(user);
+        checkIfBudgetExceeded(user);
         return new ResponseEntity<>(saved, HttpStatus.OK);
     }
 
-    private void checkIfBudgetEceeded(User user) {
+    private void checkIfBudgetExceeded(User user) {
         if (user!=null){
             List<Transaction> transactionList = transactionRepository.findByUserId(user.getId());
 
@@ -69,13 +72,16 @@ public class TransactionService {
     }
 
     public ResponseEntity<List<TransactionResponse>> getUserTransactionsByUserId(
-            Long userId, TransactionType transactionType, LocalDateTime startDate, LocalDateTime endDate){
+            String username, TransactionType transactionType, LocalDateTime startDate, LocalDateTime endDate){
 
-        userRepository.findById(userId).orElseThrow(()->new EntityNotFoundException("User not found"));
+        User user = userRepository.findByUsername(username);
+        if (user==null){
+            throw new NoSuchElementException("User: "+username+" not found");
+        }
 
 //        List<Transaction> transactionList = transactionRepository.findByUserId(userId);               // task 4: searching with filters along with userId. (userId is a necessary param)
 
-        List<Transaction> transactionList = transactionRepository.findTransactionsByUserWithFilters(userId, transactionType, startDate, endDate);
+        List<Transaction> transactionList = transactionRepository.findTransactionsByUserWithFilters(user.getId(), transactionType, startDate, endDate);
         List<TransactionResponse> transactionResponseList=new ArrayList<>();
         if (transactionList!=null){
             for (Transaction transaction: transactionList){
@@ -98,38 +104,45 @@ public class TransactionService {
     }
 
 
-    public ResponseEntity<String> deleteTransactionById(Long id) {
+    public ResponseEntity<String> deleteTransactionById(String username, Long id) {
         try{
             Transaction transaction = transactionRepository.findById(id).get();
-            transactionRepository.delete(transaction);
-            return new ResponseEntity<>("Transaction deleted successfully", HttpStatus.OK);
+            if (transaction.getUser().getUsername().equals(username)){
+                transactionRepository.delete(transaction);
+                return new ResponseEntity<>("Transaction deleted successfully", HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("User doesn't have transaction with id: "+id, HttpStatus.NOT_FOUND);
+            }
         } catch (NoSuchElementException e){
             return new ResponseEntity<>("Transaction not found with id: "+id, HttpStatus.NOT_FOUND);
         }
     }
 
-    public ResponseEntity<String> updateTransactionById(Long id, TransactionRequest transactionRequest){
+    public ResponseEntity<String> updateTransactionById(String username, Long id, TransactionRequest transactionRequest){
         try {
             Transaction transaction = transactionRepository.findById(id).get();
+            if (transaction.getUser().getUsername().equals(username)){
+                if (transactionRequest.getTransactionType()!=null){
+                    transaction.setTransactionType(transactionRequest.getTransactionType());
+                }
+                if (transactionRequest.getTransactionDate()!=null){
+                    transaction.setTransactionDate(transactionRequest.getTransactionDate());
+                }
+                if (transactionRequest.getDescription()!=null){
+                    transaction.setDescription(transactionRequest.getDescription());
+                }
+                if (transactionRequest.getAmount()!=null){
+                    transaction.setAmount(transactionRequest.getAmount());
+                }
+                if (transactionRequest.getExpenseCategory()!=null){
+                    transaction.setExpenseCategory(transactionRequest.getExpenseCategory());
+                }
 
-            if (transactionRequest.getTransactionType()!=null){
-                transaction.setTransactionType(transactionRequest.getTransactionType());
+                transactionRepository.save(transaction);
+                return new ResponseEntity<>("Transaction updated successfully", HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("User: "+username+" doesn't have transaction with id: "+id, HttpStatus.NOT_FOUND);
             }
-            if (transactionRequest.getTransactionDate()!=null){
-                transaction.setTransactionDate(transactionRequest.getTransactionDate());
-            }
-            if (transactionRequest.getDescription()!=null){
-                transaction.setDescription(transactionRequest.getDescription());
-            }
-            if (transactionRequest.getAmount()!=null){
-                transaction.setAmount(transactionRequest.getAmount());
-            }
-            if (transactionRequest.getExpenseCategory()!=null){
-                transaction.setExpenseCategory(transactionRequest.getExpenseCategory());
-            }
-
-            transactionRepository.save(transaction);
-            return new ResponseEntity<>("Transaction updated successfully", HttpStatus.OK);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>("Transaction not found with id: "+id, HttpStatus.NOT_FOUND);
         }
