@@ -31,7 +31,7 @@ public class UserService {
 
     // this is to be used at places so that we dont have to use the above method as it encodes the password
     // and if we use the above method after operations, it would encode an already encoded value
-    private User saveUser(User user){
+    protected User saveUser(User user){
         return userRepository.save(user);
     }
 
