@@ -53,4 +53,9 @@ public class UserController {
         return userService.setUserBudget(id, budget);
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody User user) {
+        return userService.loginUser(user);
+    }
+
 }
