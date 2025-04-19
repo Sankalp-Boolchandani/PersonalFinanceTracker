@@ -3,7 +3,6 @@ package com.self.pft.controller;
 import com.self.pft.entity.Transaction;
 import com.self.pft.entity.request.TransactionRequest;
 import com.self.pft.entity.response.TransactionResponse;
-import com.self.pft.enums.ExpenseCategory;
 import com.self.pft.enums.TransactionType;
 import com.self.pft.service.TransactionService;
 import jakarta.validation.Valid;
@@ -89,6 +88,12 @@ public class TransactionController {
     @GetMapping("user/{userId}/weekly-total")
     public ResponseEntity<Map<String, BigDecimal>> getWeeklyTotal(@PathVariable Long userId){
         return transactionService.weeklyTransactions(userId);
+    }
+
+    @GetMapping("report")
+    public ResponseEntity<Map<YearMonth, Map<TransactionType, BigDecimal>>> getReport(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return transactionService.getReport(authentication.getName());
     }
 
 }

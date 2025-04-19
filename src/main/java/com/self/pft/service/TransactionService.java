@@ -260,4 +260,22 @@ public class TransactionService {
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+
+    public ResponseEntity<Map<YearMonth, Map<TransactionType, BigDecimal>>> getReport(String username) {
+        User user = userRepository.findByUsername(username);
+        if (user!=null){
+            List<Transaction> transactionList = transactionRepository.findByUserId(user.getId());
+            if (!transactionList.isEmpty()){
+                Map<YearMonth, Map<TransactionType, BigDecimal>> collect = transactionList.stream().collect(Collectors.groupingBy(t ->
+                                YearMonth.from(t.getTransactionDate()),
+                        Collectors.groupingBy(
+                                Transaction::getTransactionType,
+                                Collectors.mapping(Transaction::getAmount, Collectors.reducing(BigDecimal.ZERO, BigDecimal::max))
+                        )
+                ));
+                return ResponseEntity.ok(collect);
+            }
+        }
+        return ResponseEntity.notFound().build();
+    }
 }
