@@ -1,6 +1,7 @@
 package com.self.pft.service;
 
 import com.self.pft.entity.User;
+import com.self.pft.entity.request.UserLoginRequest;
 import com.self.pft.repository.UserRepository;
 import com.self.pft.utils.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -65,7 +66,7 @@ public class UserService {
         }
     }
 
-    public ResponseEntity<String> loginUser(User user) {
+    public ResponseEntity<String> loginUser(UserLoginRequest user) {
         try{
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));

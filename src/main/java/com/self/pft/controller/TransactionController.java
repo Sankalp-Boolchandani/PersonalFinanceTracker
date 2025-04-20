@@ -5,6 +5,8 @@ import com.self.pft.entity.request.TransactionRequest;
 import com.self.pft.entity.response.TransactionResponse;
 import com.self.pft.enums.TransactionType;
 import com.self.pft.service.TransactionService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,11 +23,13 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/transactions")
+@Tag(name = "Transaction APIs")
 public class TransactionController {
 
     @Autowired
     private TransactionService transactionService;
 
+    @Operation(summary = "add-transaction")
     @PostMapping
     public ResponseEntity<Transaction> createTransaction(@Valid @RequestBody TransactionRequest request){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -38,6 +42,7 @@ public class TransactionController {
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @Operation(summary = "get-all-transactions")
     @GetMapping("/user")
     public ResponseEntity<List<TransactionResponse>> getUserTransactionsByUserId(
             @RequestParam(required = false) TransactionType transactionType,
@@ -48,12 +53,14 @@ public class TransactionController {
         return transactionService.getUserTransactionsByUserId(authentication.getName(), transactionType, startDate, endDate);
     }
 
+    @Operation(summary = "delete-transaction")
     @DeleteMapping("{id}")
     public ResponseEntity<String> deleteTransactionById(@PathVariable Long id){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return transactionService.deleteTransactionById(authentication.getName(), id);
     }
 
+    @Operation(summary = "update-transaction")
     @PutMapping("{id}")
     public ResponseEntity<String> updateTransaction(@PathVariable Long id, @RequestBody TransactionRequest transactionRequest){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

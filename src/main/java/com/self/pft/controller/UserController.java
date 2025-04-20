@@ -2,7 +2,10 @@ package com.self.pft.controller;
 
 
 import com.self.pft.entity.User;
+import com.self.pft.entity.request.UserLoginRequest;
 import com.self.pft.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,17 +18,20 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "/user")
+@Tag(name = "User APIs")
 public class UserController {
 
     @Autowired
     private UserService userService;
 
+    @Operation(summary = "get-all-users")
     @GetMapping
     public List<User> getAllUsers(){
         return userService.getAllUsers();
     }
 
-    @PostMapping
+    @Operation(summary = "create-new-user")
+    @PostMapping("/signup")
     public ResponseEntity<String> createUser(@RequestBody User user){
         User createdUser = userService.createUser(user);
         if (createdUser!=null){
@@ -35,6 +41,7 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "get-user-by-id")
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id){
         User userById = userService.findUserById(id);
@@ -45,6 +52,7 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "set-user-budget")
     @PostMapping("/{id}")
     public ResponseEntity<User> setUserBudget(@Valid
             @PathVariable Long id,
@@ -53,8 +61,9 @@ public class UserController {
         return userService.setUserBudget(id, budget);
     }
 
+    @Operation(summary = "user-login")
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody User user) {
+    public ResponseEntity<String> login(@RequestBody UserLoginRequest user) {
         return userService.loginUser(user);
     }
 
