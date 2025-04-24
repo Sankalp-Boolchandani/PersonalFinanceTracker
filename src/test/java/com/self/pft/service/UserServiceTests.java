@@ -15,6 +15,9 @@ public class UserServiceTests {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Disabled
     @Test
     void setUserNames(){
@@ -34,6 +37,16 @@ public class UserServiceTests {
             user.setRoles(List.of("USER"));
             userService.saveUser(user);
         }
+    }
+
+    @Test
+    void deleteUsers(){
+        List<User> allUsers = userService.getAllUsers();
+        allUsers.forEach(x-> {
+            if (x.getRoles() == null){
+                userRepository.delete(x);
+            }
+        });
     }
 
 }
