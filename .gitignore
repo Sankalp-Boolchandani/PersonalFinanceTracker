@@ -33,3 +33,4 @@ build/
 
 ### VS Code ###
 .vscode/
+/src/main/java/com/self/pft/constants/SecurityConstants.java
