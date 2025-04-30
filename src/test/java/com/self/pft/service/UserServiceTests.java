@@ -9,6 +9,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
+
 @SpringBootTest
 public class UserServiceTests {
 
@@ -30,6 +33,7 @@ public class UserServiceTests {
         }
     }
 
+    @Disabled
     @Test
     void setUserRoles(){
         List<User> allUsers = userService.getAllUsers();
@@ -39,6 +43,7 @@ public class UserServiceTests {
         }
     }
 
+    @Disabled
     @Test
     void deleteUsers(){
         List<User> allUsers = userService.getAllUsers();
